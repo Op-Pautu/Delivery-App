@@ -5,10 +5,9 @@ import React from "react";
 
 const SingleProductPage = ({ params }: any) => {
   const id = parseInt(params.id, 10);
-  console.log(id);
 
   const product = pizzas.find((item) => item.id === id) || null;
-  console.log(product);
+
   return (
     <div className="p-4 lg:px-20 xl:px-40 h-screen flex flex-col justify-around text-red-500 md:flex-row md:gap-8 md:items-center">
       {/* IMAGE CONTAINER */}
