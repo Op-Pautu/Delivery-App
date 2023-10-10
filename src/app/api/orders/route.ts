@@ -17,10 +17,10 @@ export const GET = async (req: NextRequest) => {
 
     try {
         if (session.user.isAdmin) {
-            const orders = prisma.order.findMany()
+            const orders = await prisma.order.findMany()
             return NextResponse.json(orders, { status: 200 })
         }
-        const orders = prisma.order.findMany({
+        const orders = await prisma.order.findMany({
             where: {
                 userEmail: session.user.email!
             }
