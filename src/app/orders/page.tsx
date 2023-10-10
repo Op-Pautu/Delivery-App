@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { OrderType } from "../types/types";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import Image from "next/image";
 
 const OrdersPage = () => {
@@ -45,6 +46,7 @@ const OrdersPage = () => {
     const input = form.elements[0] as HTMLInputElement;
     const status = input.value;
     mutation.mutate({ id, status });
+    toast.success("The order status has been changed.");
   };
 
   if (isLoading || status === "loading") return "Loading...";
@@ -63,7 +65,10 @@ const OrdersPage = () => {
         </thead>
         <tbody>
           {data.map((item: OrderType) => (
-            <tr className="text-sm md:text-base bg-red-50 " key={item.id}>
+            <tr
+              className={`${item.status != "delivered" && "bg-red-50"}`}
+              key={item.id}
+            >
               <td className="hidden md:block py-6 px-1 pl-4">{item.id}</td>
               <td className="py-6 px-1 pl-4">
                 {item.createdAt.toString().slice(0, 10)}
