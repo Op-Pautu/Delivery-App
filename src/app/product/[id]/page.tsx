@@ -1,12 +1,28 @@
 import Price from "@/app/components/Price";
-import { pizzas } from "@/data";
+import { ProductType } from "@/app/types/types";
 import Image from "next/image";
 import React from "react";
 
-const SingleProductPage = ({ params }: any) => {
-  const id = parseInt(params.id, 10);
+const getData = async (id: string) => {
+  const URL = `${process.env.NEXT_PUBLIC_API_URL}/api/products/${id}`;
 
-  const product = pizzas.find((item) => item.id === id) || null;
+  const res = await fetch(URL, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+};
+
+const SingleProductPage = async ({ params }: { params: { id: string } }) => {
+  const product: ProductType = await getData(params.id);
+
+  // const id = parseInt(params.id, 10);
+
+  // const product = pizzas.find((item) => item.id === id) || null;
 
   return (
     <div className="p-4 lg:px-20 xl:px-40 h-screen flex flex-col justify-around text-red-500 md:flex-row md:gap-8 md:items-center">
@@ -22,11 +38,7 @@ const SingleProductPage = ({ params }: any) => {
           {product?.title}
         </h1>
         <p className="lg:text-lg">{product?.desc}</p>
-        <Price
-          price={product?.price}
-          id={product?.id}
-          options={product?.options}
-        />
+        <Price product={product} />
       </div>
     </div>
   );
