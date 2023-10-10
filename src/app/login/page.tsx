@@ -42,7 +42,10 @@ const LoginPage = () => {
             />
             <span>Sign in with Google</span>
           </button>
-          <button className="flex gap-4 p-4 ring-1 ring-blue-100 rounded-md">
+          <button
+            onClick={() => signIn("facebook")}
+            className="flex gap-4 p-4 ring-1 ring-blue-100 rounded-md"
+          >
             <Image
               src="/facebook.png"
               alt=""
