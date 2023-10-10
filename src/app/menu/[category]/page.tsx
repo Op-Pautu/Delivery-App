@@ -1,12 +1,31 @@
-import { pizzas } from "@/data";
+import { ProductType } from "@/app/types/types";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const CategoryPage = () => {
+type Props = {
+  params: { category: string };
+};
+
+const getData = async (category: string) => {
+  const URL = `${process.env.NEXT_PUBLIC_API_URL}/api/products?cat=${category}`;
+  const res = await fetch(URL, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
+
+  return res.json();
+};
+
+const CategoryPage = async ({ params }: Props) => {
+  const products: ProductType[] = await getData(params.category);
+
   return (
     <div className="flex flex-wrap text-red-500">
-      {pizzas.map((item) => (
+      {products.map((item) => (
         <Link
           key={item.id}
           href={`/product/${item.id}`}

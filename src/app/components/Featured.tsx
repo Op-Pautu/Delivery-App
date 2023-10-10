@@ -1,17 +1,23 @@
-"use client";
-
-import { featuredProducts } from "@/data";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { ProductType } from "../types/types";
 
-const Featured = () => {
-  const [isMounted, setIsMounted] = useState(false);
+const getData = async () => {
+  const URL = `${process.env.NEXT_PUBLIC_API_URL}/api/products`;
+  const res = await fetch(URL, {
+    cache: "no-store",
+  });
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  if (!res.ok) {
+    throw new Error("Failed to fetch data");
+  }
 
-  if (!isMounted) return null;
+  return res.json();
+};
+
+const Featured = async () => {
+  const featuredProducts: ProductType[] = await getData();
+
   return (
     <div className="w-screen overflow-x-scroll text-red-500">
       {/* WRAPPER */}
