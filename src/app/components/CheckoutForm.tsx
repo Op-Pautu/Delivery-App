@@ -1,22 +1,23 @@
 "use client";
 
-import React from "react";
 import {
-  PaymentElement,
   LinkAuthenticationElement,
-  useStripe,
+  PaymentElement,
   useElements,
+  useStripe,
 } from "@stripe/react-stripe-js";
+import { useEffect, useState } from "react";
+import AddressForm from "./AddressForm";
 
 const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const [email, setEmail] = React.useState("");
-  const [message, setMessage] = React.useState<string | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!stripe) {
       return;
     }
@@ -46,7 +47,7 @@ const CheckoutForm = () => {
       }
     });
   }, [stripe]);
-
+  console.log("Current message:", message);
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -62,7 +63,7 @@ const CheckoutForm = () => {
       elements,
       confirmParams: {
         // Make sure to change this to your payment completion page
-        return_url: `${process.env.NEXT_PUBLIC_API_URL}/success`,
+        return_url: "http://localhost:3000/success",
       },
     });
 
@@ -72,7 +73,7 @@ const CheckoutForm = () => {
     // be redirected to an intermediate site first to authorize the payment, then
     // redirected to the `return_url`.
     if (error.type === "card_error" || error.type === "validation_error") {
-      setMessage(error.message || "Something went wrong");
+      setMessage(error.message || "Something went wrong!");
     } else {
       setMessage("An unexpected error occurred.");
     }
@@ -84,7 +85,7 @@ const CheckoutForm = () => {
     <form
       id="payment-form"
       onSubmit={handleSubmit}
-      className="max-w-4xl mx-auto p-8 md:py-16 flex flex-col gap-6 md:gap-8"
+      className="min-h-[calc(100vh-6rem)] md:min-h-[calc(100vh-15rem)] p-4 lg:px-20 xl:px-40 flex flex-col gap-8"
     >
       <LinkAuthenticationElement id="link-authentication-element" />
       <PaymentElement
@@ -93,10 +94,11 @@ const CheckoutForm = () => {
           layout: "tabs",
         }}
       />
+
       <button
         disabled={isLoading || !stripe || !elements}
         id="submit"
-        className="border p-4 rounded-md cursor-pointer hover:opacity-70"
+        className="bg-red-500 text-white p-4 rounded-md w-28"
       >
         <span id="button-text">
           {isLoading ? <div className="spinner" id="spinner"></div> : "Pay now"}

@@ -1,14 +1,16 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { OrderType } from "../types/types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React from "react";
+import { toast } from "react-toastify";
+import { OrderType } from "../types/types";
 
 const OrdersPage = () => {
   const { data: session, status } = useSession();
+
   const router = useRouter();
 
   if (status === "unauthenticated") {
@@ -22,6 +24,7 @@ const OrdersPage = () => {
         res.json()
       ),
   });
+
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -41,12 +44,12 @@ const OrdersPage = () => {
 
   const handleUpdate = (e: React.FormEvent<HTMLFormElement>, id: string) => {
     e.preventDefault();
-
     const form = e.target as HTMLFormElement;
     const input = form.elements[0] as HTMLInputElement;
     const status = input.value;
+
     mutation.mutate({ id, status });
-    toast.success("The order status has been changed.");
+    toast.success("The order status has been changed!");
   };
 
   if (isLoading || status === "loading") return "Loading...";
@@ -66,19 +69,21 @@ const OrdersPage = () => {
         <tbody>
           {data.map((item: OrderType) => (
             <tr
-              className={`${item.status != "delivered" && "bg-red-50"}`}
+              className={`${item.status !== "delivered" && "bg-red-50"}`}
               key={item.id}
             >
-              <td className="hidden md:block py-6 px-1 pl-4">{item.id}</td>
-              <td className="py-6 px-1 pl-4">
+              <td className="hidden md:block py-6 px-1 pl-6">{item.id}</td>
+              <td className="py-6 px-1 pl-6">
                 {item.createdAt.toString().slice(0, 10)}
               </td>
-              <td className="py-6 px-1 pl-4">{item.price}</td>
-              <td className="hidden md:block py-6 px-1 pl-4">
-                {item.products[0].title}
+              <td className="py-6 px-1 pl-6">{item.price}</td>
+              <td className="hidden md:block py-6 px-1 pl-6">
+                {item.products && item.products.length > 0
+                  ? item.products[0].title
+                  : "No products"}
               </td>
               {session?.user.isAdmin ? (
-                <td className="pl-4">
+                <td>
                   <form
                     className="flex items-center gap-4 pl-8"
                     onSubmit={(e) => handleUpdate(e, item.id)}
@@ -93,7 +98,7 @@ const OrdersPage = () => {
                   </form>
                 </td>
               ) : (
-                <td className="py-6 px-1 pl-4">{item.status}</td>
+                <td className="py-6 px-1">{item.status}</td>
               )}
             </tr>
           ))}

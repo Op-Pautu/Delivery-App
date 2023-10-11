@@ -1,4 +1,3 @@
-
 import { prisma } from "@/app/utils/connect";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,7 +17,8 @@ export async function POST(
 
     if (order) {
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: 100 * 100,
+            // @ts-ignore
+            amount: order.price * 100,
             currency: "usd",
             automatic_payment_methods: {
                 enabled: true,
