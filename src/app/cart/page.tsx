@@ -7,7 +7,7 @@ import { useCartStore } from "../utils/store";
 import { useRouter } from "next/navigation";
 
 const CartPage = () => {
-  const cartStore = useCartStore();
+  const { products, totalItems, totalPrice, removeFromCart } = useCartStore();
   const { data: session } = useSession();
   const router = useRouter();
 
@@ -17,24 +17,26 @@ const CartPage = () => {
 
   const handleCheckout = async () => {
     if (!session) {
-      router.push("/");
+      router.push("/login");
     } else {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            price: cartStore.totalPrice,
-            products: cartStore.products,
-            status: "Not Paid!",
-            userEmail: session.user.email,
-          }),
-        });
-
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/orders`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              price: totalPrice,
+              products,
+              status: "Not Paid!",
+              userEmail: session.user.email,
+            }),
+          }
+        );
         const data = await res.json();
         router.push(`/pay/${data.id}`);
-      } catch (error) {
-        console.log(error);
+      } catch (err) {
+        console.log(err);
       }
     }
   };
@@ -44,7 +46,7 @@ const CartPage = () => {
       {/* PRODUCTS CONTAINER */}
       <div className="h-1/2 p-4 flex flex-col justify-center overflow-scroll lg:h-full lg:w-2/3 2xl:w-1/2 lg:px-20 xl:px-40 lg:overflow-hidden">
         {/* SINGLE ITEM */}
-        {cartStore.products.map((item) => (
+        {products.map((item) => (
           <div className="flex items-center justify-between mb-4" key={item.id}>
             {item.img && (
               <Image src={item.img} alt="" width={100} height={100} />
@@ -58,7 +60,7 @@ const CartPage = () => {
             <h2 className="font-bold">{item.price}</h2>
             <span
               className="cursor-pointer"
-              onClick={() => cartStore.removeFromCart(item)}
+              onClick={() => removeFromCart(item)}
             >
               X
             </span>
@@ -68,8 +70,8 @@ const CartPage = () => {
       {/* PAYMENT CONTAINER */}
       <div className="h-1/2 p-4 bg-fuchsia-50 flex flex-col gap-4 justify-center lg:h-full lg:w-1/3 2xl:w-1/2 lg:px-20 xl:px-40 2xl:text-2xl 2xl:gap-6">
         <div className="flex justify-between">
-          <span className="">Subtotal ({cartStore.totalItems} items)</span>
-          <span className="">${cartStore.totalPrice}</span>
+          <span className="">Subtotal ({totalItems} items)</span>
+          <span className="">${totalPrice}</span>
         </div>
         <div className="flex justify-between">
           <span className="">Service Cost</span>
@@ -82,7 +84,7 @@ const CartPage = () => {
         <hr className="my-2" />
         <div className="flex justify-between">
           <span className="">TOTAL(INCL. VAT)</span>
-          <span className="font-bold">${cartStore.totalPrice}</span>
+          <span className="font-bold">${totalPrice}</span>
         </div>
         <button
           onClick={handleCheckout}
