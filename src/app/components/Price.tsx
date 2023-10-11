@@ -2,11 +2,15 @@
 
 import React, { useState, useEffect } from "react";
 import { ProductType } from "../types/types";
+import { useCartStore } from "../utils/store";
+import { toast } from "react-toastify";
 
 const Price = ({ product }: { product: ProductType }) => {
   const [total, setTotal] = useState(product.price);
   const [quantity, setQuantity] = useState(1);
   const [selected, setSelected] = useState(0);
+
+  const cartStore = useCartStore();
 
   useEffect(() => {
     const calculatedTotal =
@@ -18,6 +22,15 @@ const Price = ({ product }: { product: ProductType }) => {
     // Limit decimal places to 2
     setTotal(parseFloat(calculatedTotal.toFixed(2)));
   }, [quantity, selected, product]);
+
+  const handleCart = () => {
+    cartStore.addToCart({
+      ...product, // Include all properties from the product
+      price: total, // Update the price property
+      quantity: quantity, // Set the quantity property
+    });
+    toast.success("Product added to cart");
+  };
 
   return (
     <div className="flex flex-col gap-4">
@@ -59,7 +72,10 @@ const Price = ({ product }: { product: ProductType }) => {
           </div>
         </div>
         {/* CART BUTTON */}
-        <button className="uppercase w-56 bg-red-500 text-white p-3 ring-1 ring-red-500 ">
+        <button
+          onClick={handleCart}
+          className="uppercase w-56 bg-red-500 text-white p-3 ring-1 ring-red-500"
+        >
           Add to Cart
         </button>
       </div>
