@@ -11,32 +11,30 @@ const INITIAL_STATE = {
 export const useCartStore = create(persist<CartType & ActionTypes>((set, get) => ({
     ...INITIAL_STATE,
     addToCart: (item) => {
-        const products = get().products
-        const productInState = products.find(product => product.id === item.id)
+        set((state) => {
+            const existingProduct = state.products.find((product) => product.id === item.id);
 
-        if (productInState) {
-            const updatedProducts = products.map(product => product.id === productInState.id ? {
-                ...item,
-                quantity: item.quantity + product.quantity,
-                price: item.price + product.price
-            } : item
-            )
-            set((state) => ({
-                products: updatedProducts,
-                totalItems: state.totalItems + item.quantity,
-                totalPrice: state.totalPrice + item.price,
-            }))
-        } else {
-            set((state) => ({
+            if (existingProduct) {
+                // Update the existing product in the cart
+                existingProduct.quantity += item.quantity;
+                existingProduct.price += item.price;
+            } else {
+                // Add the item to the cart
+                state.products.push(item);
+            }
+
+            // Calculate the updated total items and total price
+            const updatedTotalItems = state.totalItems + item.quantity;
+            const updatedTotalPrice = state.totalPrice + item.price;
+
+            return {
                 ...state,
-                products: [...state.products, item],
-                totalItems: state.totalItems + item.quantity,
-                totalPrice: state.totalPrice + item.price,
-            }))
-        }
-
-
+                totalItems: updatedTotalItems,
+                totalPrice: updatedTotalPrice,
+            };
+        });
     },
+
     removeFromCart: (item) =>
         set((state) => ({
             ...state,
@@ -46,3 +44,32 @@ export const useCartStore = create(persist<CartType & ActionTypes>((set, get) =>
         }),
         ),
 }), { name: "cart", skipHydration: true }));
+
+// Old version
+// addToCart: (item) => {
+//     const products = get().products
+//     const productInState = products.find(product => product.id === item.id)
+
+//     if (productInState) {
+//         const updatedProducts = products.map(product => product.id === productInState.id ? {
+//             ...item,
+//             quantity: item.quantity + product.quantity,
+//             price: item.price + product.price
+//         } : item
+//         )
+//         set((state) => ({
+//             products: updatedProducts,
+//             totalItems: state.totalItems + item.quantity,
+//             totalPrice: state.totalPrice + item.price,
+//         }))
+//     } else {
+//         set((state) => ({
+//             ...state,
+//             products: [...state.products, item],
+//             totalItems: state.totalItems + item.quantity,
+//             totalPrice: state.totalPrice + item.price,
+//         }))
+//     }
+
+
+// },
