@@ -13,14 +13,18 @@ const Price = ({ product }: { product: ProductType }) => {
   const cartStore = useCartStore();
 
   useEffect(() => {
+    useCartStore.persist.rehydrate();
+  }, []);
+
+  useEffect(() => {
     const calculatedTotal =
       quantity *
       (product.options?.length
         ? product.price + product.options[selected].additionalPrice
         : product.price);
 
-    // Limit decimal places to 2
-    setTotal(parseFloat(calculatedTotal.toFixed(2)));
+    const formattedPrice = parseFloat(calculatedTotal.toFixed(2));
+    setTotal(formattedPrice);
   }, [quantity, selected, product]);
 
   const handleCart = () => {

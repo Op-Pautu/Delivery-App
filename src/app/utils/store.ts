@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 import { CartType, ActionTypes } from './../types/types';
 
 const INITIAL_STATE = {
@@ -7,15 +8,35 @@ const INITIAL_STATE = {
     totalPrice: 0,
 };
 
-export const useCartStore = create<CartType & ActionTypes>((set) => ({
+export const useCartStore = create(persist<CartType & ActionTypes>((set, get) => ({
     ...INITIAL_STATE,
-    addToCart: (item) =>
-        set((state) => ({
-            ...state,
-            products: [...state.products, item],
-            totalItems: state.totalItems + item.quantity,
-            totalPrice: state.totalPrice + item.price,
-        })),
+    addToCart: (item) => {
+        const products = get().products
+        const productInState = products.find(product => product.id === item.id)
+
+        if (productInState) {
+            const updatedProducts = products.map(product => product.id === productInState.id ? {
+                ...item,
+                quantity: item.quantity + product.quantity,
+                price: item.price + product.price
+            } : item
+            )
+            set((state) => ({
+                products: updatedProducts,
+                totalItems: state.totalItems + item.quantity,
+                totalPrice: state.totalPrice + item.price,
+            }))
+        } else {
+            set((state) => ({
+                ...state,
+                products: [...state.products, item],
+                totalItems: state.totalItems + item.quantity,
+                totalPrice: state.totalPrice + item.price,
+            }))
+        }
+
+
+    },
     removeFromCart: (item) =>
         set((state) => ({
             ...state,
@@ -24,4 +45,4 @@ export const useCartStore = create<CartType & ActionTypes>((set) => ({
             totalPrice: state.totalPrice - item.price,
         }),
         ),
-}));
+}), { name: "cart", skipHydration: true }));
