@@ -20,6 +20,7 @@ export async function POST(
             // @ts-ignore
             amount: order.price * 100,
             currency: "usd",
+            description: "Description of the product or service for Indian export regulations",
             automatic_payment_methods: {
                 enabled: true,
             },
